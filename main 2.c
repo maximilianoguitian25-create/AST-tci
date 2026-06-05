@@ -1,105 +1,83 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include >string.h>
 #include "afd.h"
+#include "tdata.h"
+#include "str.h"
 
-int main() {
-    automata mi_aut = NULL;
-    automata aut_afd = NULL;
-    int opcion = 0;
-    int limpiar_char;
+void menu();
 
-    printf("=== LABORATORIO DE AUTOMATAS - UNSa ===\n");
+int main(){
+	automata a = NULL;
+	automata af = NULL;
+	int opc = 0;
+	char cad[100];
+	tdata cad_list =NULL;
+	
+	do{
+	
+		menu();
+		printf("Ingrese una opcion\n");
+		scanf("%d", &opc)
+		switch(opc):
+			case1:
+	switch(opc == 0){
+		case 1:
+			a=carga_aut();
+			printf("Automata\n");
+			break;
+		case 2:
+			mostrar(a);
+			if(af!=NULL)
+				mostrar(af);
+			break;
+		case 3:
+			if(es_afd(a))
+				printf("es AFD\n");
+			else
+				printf("es AFND\n");
+			break;
 
-    while(opcion != 5) {
-        printf("\n--- MENU DE OPCIONES ---\n");
-        printf("1. Cargar Automata (AFND / AFD)\n");
-        printf("2. Mostrar Automata Cargado\n");
-        printf("3. Convertir AFND a AFD\n");
-        printf("4. Evaluar Cadena en el AFD\n");
-        printf("5. Salir\n");
-        printf("Seleccione una opcion (1-5): ");
-        
-        // Capturamos la opción numérica
-        if (scanf("%d", &opcion) != 1) {
-            opcion = 0;
-        }
-        
-        // Limpiamos el residuo del 'Enter' (\n) en el buffer para que no afecte a leecad
-        while ((limpiar_char = getchar()) != EOF && limpiar_char != '\n');
+		case 4:
+			printf("Ingrese la cadena a evaluar\n");
+			leecad(cad,100);
+			tdata leo=create_str_ast();
+			leo->string = load2(cad);
+			cad_lis = str_to_list(leo);
+			if(pertene_cadena(a,cad_lis))
+				printf("ACEPTADA\n");
+			else
+				printf("RECHAZADA\n");
+			free_tdata(leo);
+			free_tdata(cad_lis);
+			cad_lis = NULL;
+			break;
 
-        switch(opcion) {
-            case 1:
-                if (mi_aut != NULL) {
-                    liberar(mi_aut);
-                    mi_aut = NULL;
-                }
-                if (aut_afd != NULL && aut_afd != mi_aut) {
-                    liberar(aut_afd);
-                    aut_afd = NULL;
-                }
-                printf("\n[Iniciando carga del automata]\n");
-                mi_aut = carga_aut();
-                break;
+		case 5:
+			printf("CONVERTIENDO\n");
+			af =convertir(a);
+			mostrar(af);
+			break;
 
-            case 2:
-                if (mi_aut != NULL) {
-                    printf("\n>>> AUTOMATA ORIGINAL <<<");
-                    mostrar(mi_aut);
-                } else {
-                    printf("\n[ERROR] Primero debe cargar un automata en la opcion 1.\n");
-                }
-                break;
-
-            case 3:
-                if (mi_aut != NULL) {
-                    printf("\n[Procesando la conversion de subconjuntos...]\n");
-                    aut_afd = convertir(mi_aut);
-                    
-                    printf("\n>>> AFD RESULTANTE <<<");
-                    mostrar(aut_afd);
-                } else {
-                    printf("\n[ERROR] Primero debe cargar un automata en la opcion 1.\n");
-                }
-                break;
-
-            case 4:
-                // Evaluamos sobre el AFD obtenido en la opción 3 o sobre el original si ya era AFD
-                if (aut_afd != NULL || mi_aut != NULL) {
-                    automata a_evaluar = (aut_afd != NULL) ? aut_afd : mi_aut;
-                    
-                    printf("\nIngrese la cadena a evaluar (letra por letra): \n");
-                    printf("*(Al terminar de armar la cadena, presione Enter vacio)*\n");
-                    printf("Primera letra / simbolo: ");
-                    
-                    // Creamos la estructura de lista para la cadena usando tus TADs nativos
-                    tdata cadena_usuario = ing(); 
-                    
-                    // Nota: Si para ir agregando letras consecutivas usas una funcion 
-                    // como 'append' o 'insert' en bucle, podes armar un mini while aca.
-                    // Por ahora evaluamos el caracter directo ingresado:
-                    
-                    if (pertene_cadena(a_evaluar, cadena_usuario)) {
-                        printf("\n>>> ¡CADENA ACEPTADA POR EL AUTOMATA! <<<\n");
-                    } else {
-                        printf("\n>>> CADENA RECHAZADA (No pertenece al lenguaje) <<<\n");
-                    }
-                    free_tdata(cadena_usuario);
-                } else {
-                    printf("\n[ERROR] No hay ningun automata listo para evaluar.\n");
-                }
-                break;
-
-            case 5:
-                printf("\nLiberando memoria y saliendo del programa... ¡Hasta luego!\n");
-                if (mi_aut != NULL) liberar(mi_aut);
-                if (aut_afd != NULL && aut_afd != mi_aut) liberar(aut_afd);
-                break;
-
-            default:
-                printf("\n[Opcion invalida] Por favor, ingrese un numero entre 1 y 5.\n");
-                break;
-        }
-    }
-
-    return 0;
+		case 6:
+			printf("PROFE APRUEBEME\n");
+			break;
+			
+		default:
+			printf("opcion incorrecta\n");
+			break;
+	}
+	}while(opc!=6);
+	
+	return 0;
+}
+void menu(){
+	printf("MENU\n");
+	printf("1. cargar automata \n");
+	printf("2. mostrar tabla");
+	printf("3. es AFD o AFND\n");
+	printf("4. cadena pertenece al automata\n");
+	printf("5. convertir AFND a AFD \n");
+	printf("6. salir \n");
+	printf("Ingrese una opcion: ");
 }
