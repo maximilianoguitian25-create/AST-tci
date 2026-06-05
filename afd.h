@@ -4,31 +4,33 @@
 #include "tdata.h"
 #include "str.h"
 
-typedef sruct {
-	tdata q;
-	tdata sig;
-	tdata** tabla;
-	int cantest;
-	int cantsim;
-	tdata q0;
-	tdata f;
-	
-}automataNode;
+typedef struct {
+	int from;
+	int symbol;
+	tdata to;
+} TransitionEntry;
+typedef struct {
+	tdata Q;
+	tdata Sigma;
+	TransitionEntry* delta;
+	int deltaSize;
+	int q0;
+	tdata F;
+} Automata;
 
-typedef struct automataNode* automata;
 
-automata crea_uno(tdata, tdata, tdata, tdata);
-void agregar_transi(automata, tdata, tdata , tdata);
-void mostrar(automata);
-void pertene_cadena(automata, tdata );
-int es_afd(automata);
-void liberar(automata);
+typedef Automata* automata; 
 
-int indice_esta(automata, tdata);
-int indice_simb(automata, tdata);
-
+automata crea_uno(tdata conj_q, tdata alfa_sig, int ini, tdata conj_f);
+void agregar_transi(automata a, int from, int symbol, tdata est_dest);
+void mostrar(automata a);
+int pertene_cadena(automata a, tdata cad_list); 
+int es_afd(automata a);
+void liberar(automata a);
+int indice_esta(automata a, tdata estado);
+int indice_simb(automata a, tdata simbolo);
 automata carga_aut();
-int vali_cad(automata, tdata);
-automata convertir(automata );
+int vali_cad(automata a, tdata cad);
+automata convertir(automata afnd);
 
 #endif
