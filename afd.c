@@ -1,8 +1,9 @@
-#include "afd.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "afd.h"
+#include "tdata.h"
 void leecad(char cad[], int tam){
 	int j,m;
 	j=0;
@@ -98,13 +99,11 @@ void agregar_transi(automata A,int from, int symbol, tdata est_dest){
 	}
 	
 	A->deltaSize++;
-	A->delta = (TransitionEntry*)malloc(A->delta, A->deltaSize* sizeof(TransitionEntry));
+	A->delta = (TransitionEntry*)realloc(A->delta, A->deltaSize* sizeof(TransitionEntry));
 	
 	A->delta[A->deltaSize-1].from = from;
 	A->delta[A->deltaSize - 1].symbol = symbol;
 	A->delta[A->deltaSize - 1].to = clone(est_dest);
-	
-	
 }
 
 void mostrar(automata a){
@@ -118,47 +117,51 @@ void mostrar(automata a){
 		if(aux->data != NULL){
 			printf("| ");
 			print_tdata(aux->data);
-			printf("    ");
+			printf("\t\t");
 		}
 		aux = aux->next;
 	}
-	printf("\n--------------------\n");
+	printf("\n--------------------------------------------------\n");
 	tdata b = a->Q;
 	int i = 0;
 	while( b != NULL){
 		if( b->data != NULL){
-			print_tdata(b->data);
-			printf(" ");
-			
+			printf("{");
+			print_str(b->data->string);
+			printf("}");
+			printf("           ");
 			tdata aux_sim = a->Sigma;
 			int j=0;
 			while(aux_sim != NULL){
 				printf("| ");
 				tdata cel_dest = NULL;
 				int k=0, ban=0;
-				while(k< a->deltaSize && b==0){
+				while(k< a->deltaSize && ban==0){
 					if(a->delta[k].from == i&& a->delta[k].symbol == j){
 						cel_dest = a->delta[k].to;
 						ban=1;
 					}
 					k++;
 				}
-				if(cel_dest == NULL)
-					  printf("{}   ");
+				if(cel_dest == NULL || cel_dest->data == NULL)
+					  printf("{} \t\t");
 				else {
-						  print_tdata(cel_dest);
-						  printf("   ");
-				}
+					  print_tdata(cel_dest);
+					  printf("\t\t");
+					}
+						
+				
 			  j++;
 			  aux_sim =aux_sim->next;
-			}
+		}
 			printf("\n");
 			
 		}
 		i++;
 		b=b->next;
 	}
-	printf("\n====================\n");
+	
+	printf("\n==================================================\n");
 	
 }
 int es_afd(automata a){
@@ -189,18 +192,29 @@ void liberar(automata a){
 		free(a->delta);
 	}
 	if(a->Q != NULL)
-	      free_tdata(a->Q);
+	   free_tdata(a->Q);
 	if(a->Sigma != NULL)
 		free_tdata(a->Sigma);
 	if(a->F != NULL)
 		free_tdata(a->F);
 	free(a);
 }
+int indice_esta_nodo(tdata lista, tdata estado){
+	tdata aux = lista;
+	int i = 0;
+	while(aux != NULL){
+		if(aux->data != NULL && igual(aux->data, estado))
+			return i;
+		i++;
+		aux = aux->next;
+	}
+	return 0;
+}
 automata carga_aut(){
 	tdata conj_q = NULL, alf = NULL, est_fin = NULL;
 	int n, i;
 	
-	printf("INICIO");
+	printf("INICIO\n");
 	printf("¿Cuantos estados son?\n");
 	scanf("%d",&n);
 	getchar();
@@ -240,49 +254,59 @@ automata carga_aut(){
 			
 		}
 		if(val == 1)
-			    insert_set(&est_fin,f);
+			insert_set(&est_fin,f);
 		else
 			printf("ERROR 1\n");
 		free_tdata(f);
+	}
+	tdata primer_estado = conj_q;
+	while(primer_estado != NULL && primer_estado->next != NULL){
+		primer_estado = primer_estado->next;
+	}
+	
+	int indice_inicial = 0;
+	if (primer_estado != NULL && primer_estado->data != NULL) {
+		
+		indice_inicial = indice_esta_nodo(conj_q, primer_estado->data); 
 	}
 	
 	automata A= crea_uno(conj_q, alf, 0, est_fin);
 	
 	printf("TRANSICIONES\n");
-	printf("ingrese FIN para salir\n");
-	int b = 0;
-	while(b ==0){
-		printf("estado origen:\n");
+	int b;
+	printf("ingrese cant de trans\n");
+	scanf("%d",&b);
+	getchar();
+	for(i = 0; i < b; i++){
+		printf("Transicion %d:\n",i+1);
+		printf("estado origen: ");
 		tdata ori = ing();
-		if(ori->string != NULL && strcmp (ori->string,"FIN\n")==0){
-			b = 1;
-			free_tdata(ori);
-		}else{
-			int f = indice_esta(A,ori);
-			if(f !=-1){
-				printf("simbolo:\n");
-				tdata sim = ing();
-				printf("estado destino:\n");
-				tdata dest = ing();
-				int c=indice_simb(A,sim);
-				int d = indice_esta(A,dest);
-				if(c!=-1 && d!=-1){
-					tdata des = NULL;
-					insert_set(&des,dest);
-					agregar_transi(A,f,c,des);
-					printf("Transicion Agregada\n");
-					free_tdata(des);
-				}
-				else{
-					printf("Error2\n");
-				}
-				free_tdata(sim);
-				free_tdata(dest);
+		
+		int f = indice_esta(A,ori);
+		if(f !=-1){
+			printf("       simbolo:");
+			tdata sim = ing();
+			printf("       estado destino:");
+			tdata dest = ing();
+			int c=indice_simb(A,sim);
+			int d = indice_esta(A,dest);
+			if(c!=-1 && d!=-1){
+				tdata des = NULL;
+				insert_set(&des,dest);
+				agregar_transi(A,f,c,des);
+				printf("Transicion Agregada\n");
+				free_tdata(des);
 			}
-			else
-				printf("ERROR3\n");
-			free_tdata(ori);
+			else{
+				printf("Error2\n");
+			}
+			free_tdata(sim);
+			free_tdata(dest);
 		}
+		else
+			printf("ERROR3\n");
+		free_tdata(ori);
+	
 	}
 	return A;
 }
@@ -295,7 +319,7 @@ int vali_cad(automata a, tdata cad){
 		if(c->data != NULL){
 			
 			if(indice_simb(a, c->data) == -1){
-				printf("no pertenece al alfabeto \n");
+				printf(" RECHAZADA(no pertenece al alfabeto) \n");
 				return 0;
 			}
 		}
@@ -313,7 +337,7 @@ int pertene_cadena( automata a, tdata cad_list){
 	}
 	
 	if(!vali_cad(a,cad_list))
-	      return 0;
+		return 0;
 	
 	
 	tdata est_act = NULL;
@@ -375,8 +399,8 @@ int pertene_cadena( automata a, tdata cad_list){
 }
 tdata renom(int i){
 	char buffer[20];
-	sprintf(buffer, "p%d", i); 
-		tdata nuevo = create_str_ast();
+	sprintf(buffer, "p%d", i);
+	tdata nuevo = create_str_ast();
 	nuevo->string = load2(buffer);
 	return nuevo;
 }	
@@ -401,6 +425,7 @@ tdata bus_nom(tdata lis_sub, tdata lis_nom, tdata sub_bus){
 automata convertir(automata afnd){
 	if(afnd == NULL)
 		return NULL;
+	
 	if(es_afd(afnd)){
 		printf("El automata ya es un AFD\n");
 		return afnd;
@@ -409,30 +434,37 @@ automata convertir(automata afnd){
 	int cont_p = 0;
 	tdata nue_q = NULL, nue_f = NULL;
 	
+	
 	tdata conj_i = NULL;
 	tdata aux = afnd->Q;
-	int i =0;
+	int i = 0;
+	
 	while(aux != NULL && i != afnd->q0){
 		i++;
 		aux = aux->next;
 	}
+	
 	if(aux != NULL)
 		  insert_set(&conj_i, aux->data);
+	
 	
 	tdata ini_n = renom(cont_p++);
 	insert_set(&nue_q, ini_n);
 	
-	tdata l= intersection_set(conj_i, afnd->F);
-	if(length(l)>0)
-		insert_set(&nue_f,ini_n);
+	tdata l = intersection_set(conj_i, afnd->F);
+	
+	if(length(l) > 0)
+		insert_set(&nue_f, ini_n);
+	
 	free_tdata(l);
 	
 	tdata sub = NULL, nom = NULL;
+	
 	append(&sub, conj_i);
 	append(&nom, ini_n);
 	
-	tdata sub_p = NULL;
-	tdata nom_p = NULL;
+	tdata sub_p = NULL, nom_p = NULL;
+	
 	append(&sub_p, conj_i);
 	append(&nom_p, ini_n);
 	
@@ -444,61 +476,97 @@ automata convertir(automata afnd){
 		tdata nom_a = nom_p->data;
 		
 		tdata aux_sim = afnd->Sigma;
-		int le=0;
-		while (aux_sim != NULL){
-			tdata sim = aux_sim->data;
+		int le = 0;
+		
+		while(aux_sim != NULL){
+			
 			tdata conj_t = NULL;
 			
 			tdata aux_sub = sub_a;
+			
 			while(aux_sub != NULL){
-				int f = indice_esta(afnd, aux_sub->data);
-				if(f!= -1){
-					int k=0;
-					int enc =0;
-					while(k<afnd->deltaSize && enc ==0){
+				
+				
+				tdata item_real = aux_sub->data;
+				
+				while(item_real != NULL &&
+					  item_real->nodeType != STR){
+					item_real = item_real->data;
+				}
+				int f = indice_esta(afnd, item_real);
+				if(f != -1){
+					
+					int k = 0;
+					int enc = 0;
+					
+					while(k < afnd->deltaSize && enc == 0){
+						
 						if(afnd->delta[k].from == f && afnd->delta[k].symbol == le){
 							tdata u = union_set(conj_t, afnd->delta[k].to);
+							
 							if(conj_t != NULL)
 								free_tdata(conj_t);
-							conj_t= u;
-							enc =1;
+							
+							conj_t = u;
+							enc = 1;
 						}
+						
 						k++;
 					}
 				}
+				
 				aux_sub = aux_sub->next;
 			}
+			
 			if(conj_t != NULL){
-				tdata nom_d = bus_nom(sub,nom,conj_t);
+				
+				tdata nom_d = bus_nom(sub, nom, conj_t);
 				
 				if(nom_d == NULL){
-					nom_d = renom(cont_p ++);
+					
+					nom_d = renom(cont_p++);
 					
 					insert_set(&(afd_res->Q), nom_d);
-					tdata inter_f = intersection_set(conj_t,afnd->F);
-					if(length(inter_f)>0)
+					
+					tdata inter_f =
+						intersection_set(conj_t, afnd->F);
+					
+					if(length(inter_f) > 0)
 						insert_set(&(afd_res->F), nom_d);
+					
 					free_tdata(inter_f);
 					
-					append(&sub,conj_t);
+					append(&sub, conj_t);
 					append(&nom, nom_d);
+					
 					append(&sub_p, conj_t);
 					append(&nom_p, nom_d);
 				}
-				int f_res =indice_esta(afd_res, nom_a);
-				agregar_transi(afd_res, f_res, le, conj_t);
+				
+				int f_res = indice_esta(afd_res, nom_a);
+				
+				tdata celda = NULL;
+				insert_set(&celda, nom_d);
+				agregar_transi(afd_res, f_res, le, celda);
+				
+				free_tdata(celda);
 			}
+			
 			le++;
 			aux_sim = aux_sim->next;
 		}
+		
 		tdata bor_sub = sub_p;
 		tdata bor_nom = nom_p;
+		
 		sub_p = sub_p->next;
 		nom_p = nom_p->next;
+		
 		free(bor_sub);
 		free(bor_nom);
 	}
 	
 	free_tdata(sub);
+	
 	return afd_res;
 }
