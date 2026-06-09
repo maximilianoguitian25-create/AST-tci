@@ -1,27 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include >string.h>
-#include "afd.h"
+#include <string.h>
 #include "tdata.h"
+#include "afd.h"
 #include "str.h"
 
 void menu();
+void leecad(char cad[], int tam);
 
 int main(){
 	automata a = NULL;
 	automata af = NULL;
 	int opc = 0;
 	char cad[100];
-	tdata cad_list =NULL;
+	tdata cad_lis=NULL;
 	
 	do{
 	
 		menu();
-		printf("Ingrese una opcion\n");
-		scanf("%d", &opc)
-		switch(opc):
-			case1:
-	switch(opc == 0){
+		
+		scanf("%d", &opc);
+		getchar();
+		
+	switch(opc){
 		case 1:
 			a=carga_aut();
 			printf("Automata\n");
@@ -54,9 +55,8 @@ int main(){
 			break;
 
 		case 5:
-			printf("CONVERTIENDO\n");
-			af =convertir(a);
-			mostrar(af);
+			a =convertir(a);
+			mostrar(a);
 			break;
 
 		case 6:
@@ -74,7 +74,7 @@ int main(){
 void menu(){
 	printf("MENU\n");
 	printf("1. cargar automata \n");
-	printf("2. mostrar tabla");
+	printf("2. mostrar tabla\n");
 	printf("3. es AFD o AFND\n");
 	printf("4. cadena pertenece al automata\n");
 	printf("5. convertir AFND a AFD \n");
