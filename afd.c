@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -210,6 +209,52 @@ int indice_esta_nodo(tdata lista, tdata estado){
 	}
 	return 0;
 }
+void sepa(char *lin, char est[], char alf[], char tra[], char ini[], char fin[]){
+	int i=1, c=0, j=0;
+	char dest[5];
+	dest[0]= est;
+	dest[1]= alf;
+	dest[2]= tra;
+	dest[3]= ini;
+	dest[4] = fin;
+	
+	while(lin[i] != '\0' && lin[i] != ')'){
+		
+		if(lin[i] == '{')
+			nivel++;
+		
+		if(lin[i] == '}')
+			nivel--;
+		
+		if(lin[i] == ',' && nivel == 0){
+			dest[c][j] = '\0';
+			campo++;
+			j = 0;
+		
+		}
+		else {
+			dest[c][j] = lin[i];
+			j++
+		}
+		
+		i++;
+	}
+	
+	dest[c][j] = '\0';
+}
+}
+automata carga_aut(){
+	
+	char linea[1000];
+	
+	printf("Ingrese la definicion del automata:\n");
+	leecad(linea,1000);
+	
+	printf("Cadena leida:\n%s\n", linea);
+	
+	return NULL;
+}
+/*
 automata carga_aut(){
 	tdata conj_q = NULL, alf = NULL, est_fin = NULL;
 	int n, i;
@@ -310,7 +355,7 @@ automata carga_aut(){
 	}
 	return A;
 }
-
+*/
 int vali_cad(automata a, tdata cad){
 	if(a == NULL || cad == NULL)
 		return 0;
