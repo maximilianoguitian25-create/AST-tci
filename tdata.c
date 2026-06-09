@@ -2,7 +2,7 @@
 tdata create_str_ast(){
 	tdata n = (tdata)malloc(sizeof(struct dataType));
 	if(n==NULL)
-		return;
+		return NULL;
 	n->nodeType = STR;
 	n->string = NULL;
 	
@@ -47,7 +47,7 @@ void append(tdata *a, tdata e){
 	}else{
 		tdata aux = *a;
 		if(aux->data == NULL){
-			free(nuevo);
+			free_tdata(nuevo);
 			aux->data = clone(e);
 		}else{
 			while(aux->next != NULL){
@@ -74,6 +74,11 @@ tdata clone(tdata n){
 			tdata col = NULL;
 			
 			while( aux!= NULL){
+				
+				if (aux->data == NULL && cab == NULL) {
+					return (n->nodeType == SET) ? create_set() : create_list();
+				}
+				
 				tdata nodo_lista = (n->nodeType == SET)? create_set(): create_list();
 				nodo_lista->data =  clone(aux->data);
 				nodo_lista->next = NULL;
@@ -124,11 +129,19 @@ void insert_set(tdata* set, tdata elem){
 	tdata n = create_set();
 	if(n!= NULL){
 		n->data = clone(elem);
-		n->next = *set;	
-		*set = n;
+		n->next = NULL;
+		if(*set == NULL) {
+			*set = n;
+		} else {
+			tdata aux = *set;
+			while(aux->next != NULL) {
+				aux = aux->next;
+			}
+			aux->next = n;
+		}
+		
 	}
 }
-	
 tdata union_set(tdata a, tdata b){
 	tdata uni = NULL;
 	tdata aux = a;
@@ -147,7 +160,7 @@ tdata union_set(tdata a, tdata b){
 	return uni;
 	free_tdata(uni);
 }
-		
+
 tdata intersection_set(tdata a, tdata b){
 	tdata res = NULL;
 	tdata aux = a;
@@ -217,12 +230,11 @@ int length(tdata list){ //longitud de la lista
 	return c;
 }
 		
-int search(tdata list, tdata elem){ //buscar un elemento en la lista
+int search(tdata list, tdata elem){
 	tdata aux = list;
 	
 	while(aux!=NULL){
-		if(igual(aux->data,elem)){ //son_iguales deberia retornar 1 si es igual o 0 si son distintos
-			// en if no es necesario preguntar sino es como preguntara
+		if(igual(aux->data,elem)){ 
 			return 1;
 		}
 		aux=aux->next;
@@ -245,7 +257,7 @@ int equals_set(tdata a, tdata b){
 }
 void print_tdata(tdata n){
 	if(n == NULL){
-		printf("{}"); //no imprimimos nd xq en el otro es {}
+		printf("{}"); 
 		return;
 	}
 	
@@ -262,7 +274,7 @@ void print_tdata(tdata n){
 			if (aux->data != NULL) 
 				print_tdata(aux->data);
 			
-			if(aux->next != NULL)
+			if(aux->next != NULL && aux->next->data != NULL)
 				printf(",");
 			aux = aux->next;
 			
@@ -283,6 +295,7 @@ void remove_set(tdata* set, tdata elem){
 			else{
 				prev->next = aux->next; 
 			}
+			aux->next= NULL;
 			free(aux);
 			return;
 			
