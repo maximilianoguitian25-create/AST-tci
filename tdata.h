@@ -1,7 +1,3 @@
-#ifndef TDATA_H
-#define TDATA_H
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include "str.h"
@@ -23,13 +19,13 @@ struct dataType{
 
 typedef struct dataType* tdata;
 
-//funciones de cracion
+
 
 tdata create_str_ast();
 tdata create_list();
 tdata create_set();
 
-//funciones basicas
+
 
 tdata clone(tdata);
 int igual(tdata, tdata);
@@ -37,7 +33,7 @@ void append(tdata*, tdata );
 int length(tdata);
 void print_tdata(tdata );
 
-// operaciones
+
 int belongs(tdata, tdata);
 void insert_set(tdata*, tdata);
 void remove_set(tdata*, tdata);
