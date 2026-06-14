@@ -1,6 +1,4 @@
 #include "str.h"
-#include "tdata.h" 
-
 
 str load2(const char* s){
 	if(s == NULL || *s == '\0')
