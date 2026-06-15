@@ -1,83 +1,37 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef AFD_H
+#define AFD_H
+
 #include "tdata.h"
-#include "afd.h"
 #include "str.h"
 
-void menu();
-void leecad(char cad[], int tam);
+typedef struct {
+    int from;
+    int symbol;
+    tdata to;
+} TransitionEntry;
 
-int main(){
-	automata a = NULL;
-	automata af = NULL;
-	int opc = 0;
-	char cad[100];
-	tdata cad_lis=NULL;
-	
-	do{
-	
-		menu();
-		
-		scanf("%d", &opc);
-		getchar();
-		
-	switch(opc){
-		case 1:
-			a=carga_aut();
-			printf("Automata\n");
-			break;
-		case 2:
-			mostrar(a);
-			if(af!=NULL)
-				mostrar(af);
-			break;
-		case 3:
-			if(es_afd(a))
-				printf("es AFD\n");
-			else
-				printf("es AFND\n");
-			break;
+typedef struct {
+    tdata Q;
+    tdata Sigma;
+    TransitionEntry* delta;
+    int deltaSize;
+    int q0;
+    tdata F;
+} Automata;
 
-		case 4:
-			printf("Ingrese la cadena a evaluar\n");
-			leecad(cad,100);
-			tdata leo=create_str_ast();
-			leo->string = load2(cad);
-			cad_lis = str_to_list(leo);
-			if(pertene_cadena(a,cad_lis))
-				printf("ACEPTADA\n");
-			else
-				printf("RECHAZADA\n");
-			free_tdata(leo);
-			free_tdata(cad_lis);
-			cad_lis = NULL;
-			break;
+typedef Automata* automata; 
 
-		case 5:
-			a =convertir(a);
-			mostrar(a);
-			break;
+automata crea_uno(tdata conj_q, tdata alfa_sig, int ini, tdata conj_f);
+void agregar_transi(automata a, int from, int symbol, tdata est_dest);
+void mostrar(automata a);
+int pertene_cadena(automata a, tdata cad_list); 
+int es_afd(automata a);
+void liberar(automata a);
+int indice_esta(automata a, tdata estado);
+int indice_simb(automata a, tdata simbolo);
+automata carga_aut();
+int vali_cad(automata a, tdata cad);
+automata convertir(automata afnd);
+tdata leer_conjunto(char texto[]);
 
-		case 6:
-			printf("PROFE APRUEBEME\n");
-			break;
-			
-		default:
-			printf("opcion incorrecta\n");
-			break;
-	}
-	}while(opc!=6);
-	
-	return 0;
-}
-void menu(){
-	printf("MENU\n");
-	printf("1. cargar automata \n");
-	printf("2. mostrar tabla\n");
-	printf("3. es AFD o AFND\n");
-	printf("4. cadena pertenece al automata\n");
-	printf("5. convertir AFND a AFD \n");
-	printf("6. salir \n");
-	printf("Ingrese una opcion: ");
-}
+#endif
