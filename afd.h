@@ -1,4 +1,3 @@
-
 #ifndef AFD_H
 #define AFD_H
 
@@ -6,19 +5,19 @@
 #include "str.h"
 
 typedef struct {
-	int from;
-	int symbol;
-	tdata to;
+    int from;
+    int symbol;
+    tdata to;
 } TransitionEntry;
-typedef struct {
-	tdata Q;
-	tdata Sigma;
-	TransitionEntry* delta;
-	int deltaSize;
-	int q0;
-	tdata F;
-} Automata;
 
+typedef struct {
+    tdata Q;
+    tdata Sigma;
+    TransitionEntry* delta;
+    int deltaSize;
+    int q0;
+    tdata F;
+} Automata;
 
 typedef Automata* automata; 
 
@@ -33,5 +32,6 @@ int indice_simb(automata a, tdata simbolo);
 automata carga_aut();
 int vali_cad(automata a, tdata cad);
 automata convertir(automata afnd);
+tdata leer_conjunto(char texto[]);
 
 #endif
